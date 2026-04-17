@@ -5,7 +5,10 @@ private String Name;
 public Park(String Name) {
     this.Name = Name;
 }
-public static class Attraction{
+    public String getName() {
+        return Name;
+    }
+public class Attraction{
     private String attractionName;
     private String workHours;
     private int cost;

@@ -35,11 +35,13 @@ public class LessonTwo {
         }
 
         System.out.println("--- Аттракционы ---");
-            Park.Attraction[] attractions = new Park.Attraction[4];
-            attractions[0] = new Park.Attraction("Диско", "10:00 - 23:00", 500);
-            attractions[1] = new Park.Attraction("Автодром","11:00 - 20:00", 300);
-            attractions[2] = new Park.Attraction("Водворот", "12:00 - 20:00", 450);
-            attractions[3] = new Park.Attraction("Шейкер", "11:00 - 21:00", 350);
+        Park myPark = new Park("Wowland");
+        System.out.println("Парк: " + myPark.getName());
+        Park.Attraction[] attractions = new Park.Attraction[4];
+            attractions[0] = myPark.new Attraction("Диско", "10:00 - 23:00", 500);
+            attractions[1] = myPark.new Attraction("Автодром","11:00 - 20:00", 300);
+            attractions[2] = myPark.new Attraction("Водворот", "12:00 - 20:00", 450);
+            attractions[3] = myPark.new Attraction("Шейкер", "11:00 - 21:00", 350);
 
             for(Park.Attraction a : attractions) {
                 a.printInfo();
