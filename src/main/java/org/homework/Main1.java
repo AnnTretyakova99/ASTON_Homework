@@ -10,6 +10,7 @@ public class Main1 {
                 {"13", "14", "15", "16"}
         };
 
+
         try {
             int result = processArray(correctArray);
             System.out.println("Сумма элементов: " + result);
