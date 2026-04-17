@@ -1,5 +1,9 @@
 package org.homework;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Main {
     public static void main(String[] args) {
@@ -12,8 +16,9 @@ public class Main {
         studentList.add(new Student("Сергей", "Г-4", 3, Arrays.asList(3, 3, 4)));
 
 
-        management.processStudents(studentList);
+        management.removeLowGradeStudents(studentList);
+        management.promoteStudents(studentList);
         Set<Student> studentSet = new HashSet<>(studentList);
-        management.printStudents(studentSet, 2);
+        management.printStudents(studentSet, 4);
     }
 }
