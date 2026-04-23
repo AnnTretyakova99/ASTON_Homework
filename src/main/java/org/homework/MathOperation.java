@@ -20,7 +20,7 @@ public class MathOperation {
         if(c == 0) throw new ArithmeticException("Деление на ноль");
         return (double) b / c;
     }
-    public String compare(int a, int d){
+    public String compare(int a, int d) {
         if (a > d) return "greater";
         if(a < d) return "less";
         return "equal";
