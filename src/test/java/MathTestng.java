@@ -18,11 +18,10 @@ public class MathTestng {
 
     @Test
     public void testArithmetic() {
-        // В TestNG проверки пишутся просто по очереди
         Assert.assertEquals(math.add(7, 3), 10);
         Assert.assertEquals(math.subtract(7, 3), 4);
         Assert.assertEquals(math.multiply(7, 3), 21);
-        Assert.assertEquals(math.divide(6, 3), 2.0);
+        Assert.assertEquals(math.divide(6, 3), 2.0, 0.001);
     }
 
     @Test
