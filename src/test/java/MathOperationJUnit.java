@@ -8,29 +8,29 @@ class MathOperationJUnit {
 
     @Test
     void testFactorial() {
-        assertEquals(120, math.factorial(5));
+        assertEquals(720, math.factorial(6));
         assertEquals(1, math.factorial(0));
     }
 
     @Test
     void testTriangleArea() {
-        assertEquals(10.0, math.triangleArea(5, 4));
+        assertEquals(25.0, math.triangleArea(10.0, 5.0));
     }
 
     @Test
     @DisplayName("Проверка арифметических действий")
     void testArithmetic() {
         assertAll(
-                () -> assertEquals(10, math.add(7, 3)),
-                () -> assertEquals(4, math.subtract(7, 3)),
-                () -> assertEquals(21, math.multiply(7, 3)),
-                () -> assertEquals(2.0, math.divide(6, 3))
+                () -> assertEquals(20, math.add(12, 8)),
+                () -> assertEquals(50, math.subtract(100, 50)),
+                () -> assertEquals(32, math.multiply(4, 8)),
+                () -> assertEquals(2.5, math.divide(5, 2))
         );
     }
 
     @Test
     void testCompare() {
-        assertEquals("greater", math.compare(10, 5));
-        assertEquals("equal", math.compare(5, 5));
+        assertEquals("less", math.compare(10, 50));
+        assertEquals("equal", math.compare(7, 7));
     }
 }
