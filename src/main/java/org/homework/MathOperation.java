@@ -12,7 +12,7 @@ public class MathOperation {
         return 0.5 * base * height;
     }
     public int add(int b, int c) {return b+c; }
-    public int substract(int b, int c) {return b-c; }
+    public int subtract(int b, int c) {return b-c; }
     public int multiply(int b, int c) {return b*c; }
     public double divide(int b, int c){
         if(c == 0) throw new ArithmeticException("");
