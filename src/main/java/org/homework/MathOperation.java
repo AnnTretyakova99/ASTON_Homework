@@ -13,16 +13,16 @@ public class MathOperation {
         if (base <= 0 || height <= 0) throw new IllegalArgumentException("Параметры должны быть > 0");
         return 0.5 * base * height;
     }
-    public int add(int b, int c) {return b+c; }
-    public int subtract(int b, int c) {return b-c; }
-    public int multiply(int b, int c) {return b*c; }
+    public int add(int b, int c) {return b + c; }
+    public int subtract(int b, int c) {return b - c; }
+    public int multiply(int b, int c) {return b * c; }
     public double divide(int b, int c){
         if(c == 0) throw new ArithmeticException("Деление на ноль");
         return (double) b / c;
     }
     public String compare(int a, int d){
-        if (a>d) return "greater";
-        if(a<d) return "less";
+        if (a > d) return "greater";
+        if(a < d) return "less";
         return "equal";
     }
 }
