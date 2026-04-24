@@ -65,4 +65,32 @@ public class PostmanJUnit {
                 .statusCode(200)
                 .body("json.update", equalTo("success"));
     }
+
+    @Test
+    void testPathJsonRequest() {
+        String jsonBody = "{\"op\": \"replace\"}";
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(jsonBody)
+                .when()
+                .patch("/patch")
+                .then()
+                .statusCode(200)
+                .body("json.op", equalTo("replace"));
+    }
+
+    @Test
+    void testDeleteRequest() {
+        String message = "delete-me-121";
+
+        given()
+                .contentType(ContentType.TEXT)
+                .body(message)
+                .when()
+                .delete("/delete")
+                .then()
+                .statusCode(200)
+                .body("data", equalTo(message));
+    }
 }

@@ -67,4 +67,31 @@ public class PostmanTestng {
                 .body("json.status", equalTo("updated"))
                 .body("json.code", equalTo(200));
     }
+
+    @Test
+    public void testPatchRequest() {
+        String patchBody = "{\"info\": \"patched\"}";
+        given()
+                .contentType(ContentType.JSON)
+                .body(patchBody)
+                .when()
+                .patch("/patch")
+                .then()
+                .statusCode(200)
+                .body("json.info", equalTo("patched"));
+    }
+
+    @Test
+    public void testDeleteRequest() {
+        String deleteMessage = "entity_id_121";
+
+        given()
+                .contentType(ContentType.TEXT)
+                .body(deleteMessage)
+                .when()
+                .delete("/delete")
+                .then()
+                .statusCode(200)
+                .body("data", equalTo(deleteMessage));
+    }
 }
