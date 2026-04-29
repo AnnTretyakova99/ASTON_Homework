@@ -12,17 +12,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MTSAuto {
-    private WebDriver driver;
-    private WebDriverWait wait;
+    private static WebDriver driver;
+    private static WebDriverWait wait;
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--remote-allow-origins=*");
         options.addArguments("--start-maximized");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--no-sandbox");
+
         driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, Duration.ofSeconds(60));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
         driver.get("https://mts.by");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//section[contains(@class,'pay')]//h2")));
         try {
             List<WebElement> cookieButtons = driver.findElements(By.id("cookie-agree"));
             if (!cookieButtons.isEmpty()) {
@@ -70,6 +75,7 @@ public class MTSAuto {
     @Test
     @DisplayName("4. Заполнение формы")
     public void testForms() {
+        driver.get("https://mts.by");
         WebElement phone = wait.until(ExpectedConditions.elementToBeClickable(By.id("connection-phone")));
         phone.sendKeys("297777777");
 
