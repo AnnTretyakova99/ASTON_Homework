@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.equalTo;
 
-public class PostmanJUnit {
+public class MTSAuto {
     @BeforeAll
     public static void setup() {
         RestAssured.baseURI = "https://postman-echo.com";
