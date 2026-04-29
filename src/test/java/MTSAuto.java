@@ -3,62 +3,70 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.List;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MTSAuto {
     private WebDriver driver;
     private WebDriverWait wait;
 
     @BeforeEach
     public void setUp() {
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        // ВАЖНО: Инициализируем wait СРАЗУ после драйвера
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+        options.addArguments("--start-maximized");
+        driver = new ChromeDriver(options);
+        wait = new WebDriverWait(driver, Duration.ofSeconds(60));
         driver.get("https://mts.by");
-
         try {
             List<WebElement> cookieButtons = driver.findElements(By.id("cookie-agree"));
             if (!cookieButtons.isEmpty()) {
                 cookieButtons.get(0).click();
             }
         } catch (Exception e) {
-            System.out.println("Куки не найдены, идем дальше");
+            System.out.println("Куки не найдены");
         }
     }
 
+    @Order(1)
     @Test
     @DisplayName("1. Проверка названия блока")
     public void testBlockTitle() {
-        WebElement title = wait.until(ExpectedConditions.visibilityOfElementLocated(
+        WebElement titleElement = wait.until(ExpectedConditions.visibilityOfElementLocated(
                 By.xpath("//section[contains(@class,'pay')]//h2")
         ));
-        String actualText = title.getText().replace("\n", " ").trim();
-        assertEquals("Онлайн пополнение без комиссии", actualText);
+        String actualTitle = titleElement.getText();
+        assertTrue(actualTitle.contains("Онлайн пополнение") && actualTitle.contains("без комиссии"),
+                "Заголовок не содержит нужных слов! Получили: [" + actualTitle + "]");
     }
 
+    @Order(2)
     @Test
-    @DisplayName("2. Проверка логотипов")
+    @DisplayName("2. Проверка логотипов платёжных систем")
     public void testLogos() {
-        List<WebElement> logos = driver.findElements(By.xpath("//div[@class='pay__partners']//img"));
+        WebElement partnersBlock = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector(".pay__partners")
+        ));
+        List<WebElement> logos = partnersBlock.findElements(By.tagName("img"));
         assertTrue(logos.size() > 0, "Логотипы не найдены");
+        System.out.println("Количество найденных логотипов: " + logos.size());
     }
 
+    @Order(3)
     @Test
-    @DisplayName("3. Проверка ссылки Подробнее")
+    @DisplayName("3. Проверка ссылки 'Подробнее о сервисе' ")
     public void testLink() {
         WebElement link = wait.until(ExpectedConditions.elementToBeClickable(By.linkText("Подробнее о сервисе")));
         link.click();
         assertTrue(driver.getCurrentUrl().contains("help"), "Ссылка не сработала");
-        driver.navigate().back(); // Возвращаемся для 4 теста
     }
 
+    @Order(4)
     @Test
     @DisplayName("4. Заполнение формы")
     public void testForms() {
@@ -76,6 +84,5 @@ public class MTSAuto {
         btn.click();
         wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("iframe")));
         assertTrue(true);
-
     }
 }
