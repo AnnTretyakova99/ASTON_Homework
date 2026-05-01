@@ -2,6 +2,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
+import java.util.List;
 
 public class PaymentServicesPage {
     private final WebDriver driver;
@@ -44,9 +45,18 @@ public class PaymentServicesPage {
         By tabLocator = By.xpath("//ul[@class='select__list']//p[contains(text(),'" + tabName + "')]");
         wait.until(ExpectedConditions.elementToBeClickable(tabLocator)).click();
     }
+    public String getPlaceholderTextByLabel(String partOfPlaceholder) {
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("input")));
+        List<WebElement> inputs = driver.findElements(By.tagName("input"));
 
-    public String getActivePlaceholder() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(activeAccountInput)).getAttribute("placeholder");
+        for (WebElement input : inputs) {
+            String placeholder = input.getAttribute("placeholder");
+            if (input.isDisplayed() && placeholder != null &&
+                    placeholder.toLowerCase().contains(partOfPlaceholder.toLowerCase())) {
+                return placeholder;
+            }
+        }
+        throw new RuntimeException("Не удалось найти видимое поле с плейсхолдером: " + partOfPlaceholder);
     }
 
     public void fillPaymentDetails(String account, String sum, String email) {

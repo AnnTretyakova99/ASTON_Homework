@@ -37,21 +37,22 @@ public class DeepPaymentTest {
     public void testPlaceholdersForAllTabs() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         String[][] testSettings = {
-                {"Услуги связи", "Номер телефона"},
-                {"Домашний интернет", "Номер абонента"},
-                {"Рассрочка", "Номер счета на 44"},
-                {"Задолженность", "Номер счета на 2073"}
+                {"Услуги связи", "Номер телефона", "Сумма", "E-mail для отправки чека"},
+                {"Домашний интернет", "Номер абонента", "Сумма", "E-mail для отправки чека"},
+                {"Рассрочка", "Номер счета на 44", "Сумма", "E-mail для отправки чека"},
+                {"Задолженность", "Номер счета на 2073", "Сумма", "E-mail для отправки чека"}
         };
-
         for (String[] setting : testSettings) {
             String tabName = setting[0];
-            String expectedPlaceholder = setting[1];
+            String expectedMain = setting[1];
+            String expectedSum = setting[2];
+            String expectedEmail = setting[3];
 
             paymentServicesPage.selectTab(tabName);
-
-            try { Thread.sleep(500); } catch (InterruptedException e) {}
-            String actualPlaceholder = paymentServicesPage.getActivePlaceholder();
-            Assert.assertEquals(actualPlaceholder, expectedPlaceholder, "Ошибка на вкладке: " + tabName);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[contains(@placeholder, '" + expectedMain + "')]")));
+            Assert.assertEquals(paymentServicesPage.getPlaceholderTextByLabel(expectedMain), expectedMain, "Ошибка основного поля на: " + tabName);
+            Assert.assertEquals(paymentServicesPage.getPlaceholderTextByLabel(expectedSum), expectedSum, "Ошибка Суммы на: " + tabName);
+            Assert.assertEquals(paymentServicesPage.getPlaceholderTextByLabel("E-mail"), expectedEmail, "Ошибка Email на: " + tabName);
         }
     }
 
@@ -90,3 +91,4 @@ public class DeepPaymentTest {
         if (driver != null) driver.quit();
     }
 }
+
