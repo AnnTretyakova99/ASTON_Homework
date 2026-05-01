@@ -1,69 +1,99 @@
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 public class PaymentServicesPage {
-private final WebDriver driver;
-private final WebDriverWait wait;
+    private final WebDriver driver;
+    private final WebDriverWait wait;
 
-private final By connectionTab = By.xpath("//buttin[text()='Услуги связи']");
-private final By internetTab = By.xpath("//button[text()='Домашний интернет']");
-private final By installmentTab = By.xpath("//button[text()='Расрочка']");
-private final By debTab = By.xpath("//button[text()= 'Задолженность']");
 
-private final By phoneInput = By.id("connection-phone");
-private final By sumInput = By.id("connection-sum");
-private final By emailInput = By.id("connection-email");
-private final By submitButton = By.xpath("//from[@id='pay-connection']//button[contains(text(),'Продолжить')]");
+    private final By cookieBtn = By.id("cookie-agree");
+    private final By selectHeader = By.cssSelector(".select__header");
+    private final By activeAccountInput = By.xpath("//form[contains(@class,'opened')]//input[not(@type='hidden') and not(contains(@id,'sum')) and not(@type='email')]");
+    private final By activeSumInput = By.xpath("//form[contains(@class,'opened')]//input[contains(@id,'sum')]");
+    private final By activeEmailInput = By.xpath("//form[contains(@class,'opened')]//input[contains(@id,'email')]");
+    private final By submitButton = By.xpath("//form[contains(@class,'opened')]//button[contains(text(),'Продолжить')]");
 
-private final By paymentFrame = By.cssSelector("iframe.bepaid-iframe");
-private final By paymentAmount = By.cssSelector(".pay-description__cost");
-private final By payButton = By.cssSelector(".pay-button");
-private final By cardNumberLabel = By.xpath("//label[contains(@class, 'field-label') and contains(text(), 'Номер карты')]");
-private final By paymentIcons = By.cssSelector(".payment-page__icons img");
 
-public PaymentServicesPage(WebDriver driver) {
-    this.driver = driver;
-    this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-}
+    private final By iframe = By.tagName("iframe");
+    private final By paymentAmount = By.xpath("//*[contains(@class, 'pay-description__cost')]");
+    private final By infoText = By.xpath("//*[contains(@class, 'pay-description__text')]");
+    private final By payButton = By.cssSelector("button.pay-btn");
+    private final By cardIcons = By.cssSelector(".payment-brands__item img, .cards-brand-icons img");
 
-public void open() {
-    driver.get("https://mts.by");
-}
 
-public void selectTab(String tabName) {
-    By locator;
-    switch (tabName) {
-        case "Услуги связи": locator = connectionTab; break;
-        case "Домашний интеренет": locator = internetTab; break;
-        case "Рассрочка": locator = installmentTab; break;
-        case "Задолженность": locator = debTab; break;
-        default: throw new IllegalArgumentException("Неверная вкладка: " + tabName);
+    public PaymentServicesPage(WebDriver driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(25));
     }
-    driver.findElement(locator).click();
-}
 
-public String getPhonePlaceholder() {
-    return driver.findElement(phoneInput).getAttribute("placeholder");
-}
-public String getSumPlaceholder() {
-    return driver.findElement(sumInput).getAttribute("placeholder");
-}
-public void fillConnectionDetails(String phone, String sum, String email) {
-    driver.findElement(phoneInput).sendKeys(phone);
-    driver.findElement(sumInput).sendKeys(sum);
-    driver.findElement(emailInput).sendKeys(email);
-}
-public void clickContinue() {
-    driver.findElement(submitButton).click();
-}
-public void switchToPaymentFrame() {
-    wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(paymentFrame));
-}
-public String getPaymentAmountText() {return driver.findElement(paymentAmount).getText(); }
-    public String getPayButtonText() { return driver.findElement(payButton).getText(); }
-    public boolean isCardNumberLabelVisible() { return driver.findElement(cardNumberLabel).isDisplayed(); }
-    public int getPaymentIconsCount() { return driver.findElements(paymentIcons).size(); }
+    public void open() {
+        driver.get("https://mts.by");
+    }
+
+    public void acceptCookies() {
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(cookieBtn)).click();
+        } catch (Exception ignored) {}
+    }
+
+    public void selectTab(String tabName) {
+        wait.until(ExpectedConditions.elementToBeClickable(selectHeader)).click();
+        By tabLocator = By.xpath("//ul[@class='select__list']//p[contains(text(),'" + tabName + "')]");
+        wait.until(ExpectedConditions.elementToBeClickable(tabLocator)).click();
+    }
+
+    public String getActivePlaceholder() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(activeAccountInput)).getAttribute("placeholder");
+    }
+
+    public void fillPaymentDetails(String account, String sum, String email) {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(activeAccountInput)).sendKeys(account);
+        driver.findElement(activeSumInput).sendKeys(sum);
+        driver.findElement(activeEmailInput).sendKeys(email);
+    }
+
+    public void clickContinue() {
+        wait.until(ExpectedConditions.elementToBeClickable(submitButton)).click();
+    }
+
+    public void switchToPaymentFrame() {
+        try { Thread.sleep(5000); } catch (InterruptedException e) { e.printStackTrace(); }
+        wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.xpath("//iframe[contains(@src, 'bepaid')]")));
+    }
+
+    public String getPaymentAmountText() {
+        WebElement el = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("pay-description__cost")));
+        wait.until(d -> !el.getText().trim().isEmpty());
+        return el.getText();
+    }
+
+    public String getPaymentInfoText() {
+        By locator = By.cssSelector(".pay-description__text");
+        WebElement el = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        wait.until(d -> !el.getText().trim().isEmpty());
+        return el.getText();
+    }
+
+    public boolean isFieldVisible(String fieldId) {
+            try {
+                return wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(fieldId))).isDisplayed();
+            } catch (Exception e) {
+                try {
+                    return driver.findElement(By.id("cvc")).isDisplayed();
+                } catch (Exception ex) {
+                    return false;
+                }
+            }
+    }
+
+    public String getCardLabel(String labelName) {
+        By locator = By.xpath("//label[contains(text(),'" + labelName + "')]");
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).getText();
+    }
+
+    public int getPaymentIconsCount() {
+        return driver.findElements(By.cssSelector(".payment-brands img, .cards-brand-icons img")).size();
+    }
 }

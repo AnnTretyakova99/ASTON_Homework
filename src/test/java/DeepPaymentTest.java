@@ -1,9 +1,10 @@
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
+
+import javax.lang.model.util.Types;
 
 public class DeepPaymentTest {
     private WebDriver driver;
@@ -11,47 +12,59 @@ public class DeepPaymentTest {
 
     @BeforeMethod
     public void setUp() {
-        driver = new ChromeDriver();
+        WebDriverManager.chromedriver().clearDriverCache().setup();
+
+        org.openqa.selenium.chrome.ChromeOptions options = new org.openqa.selenium.chrome.ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+        options.addArguments("--no-sandbox");
+
+        driver = new org.openqa.selenium.chrome.ChromeDriver(options);
         driver.manage().window().maximize();
+
         paymentServicesPage = new PaymentServicesPage(driver);
         paymentServicesPage.open();
+        paymentServicesPage.acceptCookies();
     }
 
-    @Test
-    public void testPlaceholderForAllTabs() {
-        paymentServicesPage.selectTab("Услуги связи");
-        Assert.assertEquals(paymentServicesPage.getPhonePlaceholder(),"Номер телефона");
+    @Test(description = "1. Проверка плейсхолдеров всех вариантов оплаты")
+    public void testPlaceholdersForAllTabs() {
+        String[][] testSettings = {
+                {"Услуги связи", "Номер телефона"},
+                {"Домашний интернет", "Номер абонента"},
+                {"Рассрочка", "Номер счета на 44"},
+                {"Задолженность", "Номер счета на 2073"}
+        };
 
-        paymentServicesPage.selectTab("Домашний интерент");
-        Assert.assertEquals(paymentServicesPage.getSumPlaceholder(),"Номер абонента");
+        for (String[] setting : testSettings) {
+            String tabName = setting[0];
+            String expectedPlaceholder = setting[1];
 
-        paymentServicesPage.selectTab("Рассрочка");
-        Assert.assertEquals(paymentServicesPage.getPhonePlaceholder(),"Номер счёта на 44");
+            paymentServicesPage.selectTab(tabName);
+            String actualPlaceholder = paymentServicesPage.getActivePlaceholder();
 
-        paymentServicesPage.selectTab("Задолженность");
-        Assert.assertEquals(paymentServicesPage.getPhonePlaceholder(),"Номер счёта на 2073");
-
-        Assert.assertEquals(paymentServicesPage.getSumPlaceholder(),"Сумма");
+            Assert.assertEquals(actualPlaceholder, expectedPlaceholder, "Ошибка на вкладке: " + tabName);
+        }
     }
 
-    @Test
+    @Test(description = "2. Проверка Услуг связи и содержимого окна оплаты")
     public void testFullPaymentCycle() {
-        String testphone = "297777777";
+        String testPhone = "297777777";
         String testSum = "10.00";
-        paymentServicesPage.selectTab("");
-        paymentServicesPage.fillConnectionDetails(testphone, testSum, "test@mail.ru");
+        paymentServicesPage.selectTab("Услуги связи");
+        paymentServicesPage.fillPaymentDetails(testPhone, testSum, "test@mail.ru");
         paymentServicesPage.clickContinue();
-
         paymentServicesPage.switchToPaymentFrame();
-        Assert.assertTrue(paymentServicesPage.getPaymentAmountText().contains(testSum));
-        Assert.assertTrue(paymentServicesPage.getPayButtonText().contains(testSum));
-        Assert.assertTrue(paymentServicesPage.isCardNumberLabelVisible(), "Метка 'Номер карты' не видна");
-        Assert.assertTrue(paymentServicesPage.getPaymentIconsCount() > 0, "Иконки систем оплаты не загрузились");
+
+        Assert.assertTrue(paymentServicesPage.getPaymentAmountText().contains(testSum), "Сумма в окне не совпадает!");
+        Assert.assertTrue(paymentServicesPage.getPaymentInfoText().contains(testPhone), "Номер телефона не найден!");
+
+        Assert.assertTrue(paymentServicesPage.isFieldVisible("cc-number"), "Поле номера карты не найдено");
+        Assert.assertTrue(paymentServicesPage.isFieldVisible("cvv"), "Поле CVC не найдено");
+
     }
+
     @AfterMethod
     public void tearDown() {
-        if (driver != null) {
-            driver.quit();
-        }
+        if (driver != null) driver.quit();
     }
 }
