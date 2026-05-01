@@ -4,7 +4,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
-public class OnlinePaymentFrame {
+public class PaymentBlock {
     private final WebDriver driver;
     private final WebDriverWait wait;
 
@@ -19,7 +19,7 @@ public class OnlinePaymentFrame {
     private final By emailInput = By.id("connection-email");
     private final By submitButton = By.xpath("//form[@id='pay-connection']//button[contains(text(),'Продолжить')]");
 
-    public OnlinePaymentFrame(WebDriver driver) {
+    public PaymentBlock(WebDriver driver) {
         this.driver = driver;
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(20));
     }

@@ -4,7 +4,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
-public class MainPage {
+public class PaymentServicesPage {
 private final WebDriver driver;
 private final WebDriverWait wait;
 
@@ -24,7 +24,7 @@ private final By payButton = By.cssSelector(".pay-button");
 private final By cardNumberLabel = By.xpath("//label[contains(@class, 'field-label') and contains(text(), 'Номер карты')]");
 private final By paymentIcons = By.cssSelector(".payment-page__icons img");
 
-public MainPage(WebDriver driver) {
+public PaymentServicesPage(WebDriver driver) {
     this.driver = driver;
     this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 }

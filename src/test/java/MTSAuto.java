@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MTSAuto {
     private static WebDriver driver;
-    private static OnlinePaymentFrame mainPage;
+    private static PaymentBlock mainPage;
 
     @BeforeAll
     public static void setUp() {
@@ -15,7 +15,7 @@ public class MTSAuto {
         options.addArguments("--start-maximized");
 
         driver = new ChromeDriver(options);
-        mainPage = new OnlinePaymentFrame(driver);
+        mainPage = new PaymentBlock(driver);
 
         mainPage.open();
         mainPage.acceptCookies();

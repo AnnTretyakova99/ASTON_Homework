@@ -7,46 +7,46 @@ import org.testng.annotations.Test;
 
 public class DeepPaymentTest {
     private WebDriver driver;
-    private MainPage mainPage;
+    private PaymentServicesPage paymentServicesPage;
 
     @BeforeMethod
     public void setUp() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        mainPage = new MainPage(driver);
-        mainPage.open();
+        paymentServicesPage = new PaymentServicesPage(driver);
+        paymentServicesPage.open();
     }
 
     @Test
     public void testPlaceholderForAllTabs() {
-        mainPage.selectTab("Услуги связи");
-        Assert.assertEquals(mainPage.getPhonePlaceholder(),"Номер телефона");
+        paymentServicesPage.selectTab("Услуги связи");
+        Assert.assertEquals(paymentServicesPage.getPhonePlaceholder(),"Номер телефона");
 
-        mainPage.selectTab("Домашний интерент");
-        Assert.assertEquals(mainPage.getSumPlaceholder(),"Номер абонента");
+        paymentServicesPage.selectTab("Домашний интерент");
+        Assert.assertEquals(paymentServicesPage.getSumPlaceholder(),"Номер абонента");
 
-        mainPage.selectTab("Рассрочка");
-        Assert.assertEquals(mainPage.getPhonePlaceholder(),"Номер счёта на 44");
+        paymentServicesPage.selectTab("Рассрочка");
+        Assert.assertEquals(paymentServicesPage.getPhonePlaceholder(),"Номер счёта на 44");
 
-        mainPage.selectTab("Задолженность");
-        Assert.assertEquals(mainPage.getPhonePlaceholder(),"Номер счёта на 2073");
+        paymentServicesPage.selectTab("Задолженность");
+        Assert.assertEquals(paymentServicesPage.getPhonePlaceholder(),"Номер счёта на 2073");
 
-        Assert.assertEquals(mainPage.getSumPlaceholder(),"Сумма");
+        Assert.assertEquals(paymentServicesPage.getSumPlaceholder(),"Сумма");
     }
 
     @Test
     public void testFullPaymentCycle() {
         String testphone = "297777777";
         String testSum = "10.00";
-        mainPage.selectTab("");
-        mainPage.fillConnectionDetails(testphone, testSum, "test@mail.ru");
-        mainPage.clickContinue();
+        paymentServicesPage.selectTab("");
+        paymentServicesPage.fillConnectionDetails(testphone, testSum, "test@mail.ru");
+        paymentServicesPage.clickContinue();
 
-        mainPage.switchToPaymentFrame();
-        Assert.assertTrue(mainPage.getPaymentAmountText().contains(testSum));
-        Assert.assertTrue(mainPage.getPayButtonText().contains(testSum));
-        Assert.assertTrue(mainPage.isCardNumberLabelVisible(), "Метка 'Номер карты' не видна");
-        Assert.assertTrue(mainPage.getPaymentIconsCount() > 0, "Иконки систем оплаты не загрузились");
+        paymentServicesPage.switchToPaymentFrame();
+        Assert.assertTrue(paymentServicesPage.getPaymentAmountText().contains(testSum));
+        Assert.assertTrue(paymentServicesPage.getPayButtonText().contains(testSum));
+        Assert.assertTrue(paymentServicesPage.isCardNumberLabelVisible(), "Метка 'Номер карты' не видна");
+        Assert.assertTrue(paymentServicesPage.getPaymentIconsCount() > 0, "Иконки систем оплаты не загрузились");
     }
     @AfterMethod
     public void tearDown() {
