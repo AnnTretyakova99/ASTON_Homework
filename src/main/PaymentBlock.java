@@ -1,5 +1,7 @@
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
@@ -11,7 +13,7 @@ public class PaymentBlock {
     private final By blockTitle = By.xpath("//section[contains(@class,'pay')]//h2");
     private final By partnersLogos = By.cssSelector(".pay__partners img");
     private final By moreInfoLink = By.linkText("Подробнее о сервисе");
-    private final By cookieBtn = By.id("cookie-confirm");
+    private final By cookieBtn = By.xpath("//button[contains(text(), 'Принять')]");
 
 
     private final By phoneInput = By.id("connection-phone");
@@ -30,9 +32,15 @@ public class PaymentBlock {
 
     public void acceptCookies() {
         try {
-            wait.until(ExpectedConditions.elementToBeClickable(cookieBtn)).click();
+            WebDriverWait localWait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement btn = localWait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[contains(text(), 'Принять')]")));
+
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+
+            localWait.until(ExpectedConditions.invisibilityOf(btn));
+            System.out.println("Куки успешно приняты.");
         } catch (Exception e) {
-            System.out.println("Окно куки не появилось");
+            System.out.println("Кнопка куки не нажалась: " + e.getMessage());
         }
     }
 
