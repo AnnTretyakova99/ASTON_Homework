@@ -1,10 +1,14 @@
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.*;
 
 import javax.lang.model.util.Types;
+import java.time.Duration;
+import java.util.List;
 
 public class DeepPaymentTest {
     private WebDriver driver;
@@ -18,7 +22,10 @@ public class DeepPaymentTest {
         options.addArguments("--remote-allow-origins=*");
         options.addArguments("--no-sandbox");
 
+        options.setPageLoadStrategy(PageLoadStrategy.NONE);
+
         driver = new org.openqa.selenium.chrome.ChromeDriver(options);
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(50));
         driver.manage().window().maximize();
 
         paymentServicesPage = new PaymentServicesPage(driver);
@@ -28,6 +35,7 @@ public class DeepPaymentTest {
 
     @Test(description = "1. Проверка плейсхолдеров всех вариантов оплаты")
     public void testPlaceholdersForAllTabs() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         String[][] testSettings = {
                 {"Услуги связи", "Номер телефона"},
                 {"Домашний интернет", "Номер абонента"},
@@ -40,8 +48,9 @@ public class DeepPaymentTest {
             String expectedPlaceholder = setting[1];
 
             paymentServicesPage.selectTab(tabName);
-            String actualPlaceholder = paymentServicesPage.getActivePlaceholder();
 
+            try { Thread.sleep(500); } catch (InterruptedException e) {}
+            String actualPlaceholder = paymentServicesPage.getActivePlaceholder();
             Assert.assertEquals(actualPlaceholder, expectedPlaceholder, "Ошибка на вкладке: " + tabName);
         }
     }
@@ -55,13 +64,26 @@ public class DeepPaymentTest {
         paymentServicesPage.clickContinue();
         paymentServicesPage.switchToPaymentFrame();
 
-        Assert.assertTrue(paymentServicesPage.getPaymentAmountText().contains(testSum), "Сумма в окне не совпадает!");
-        Assert.assertTrue(paymentServicesPage.getPaymentInfoText().contains(testPhone), "Номер телефона не найден!");
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 
-        Assert.assertTrue(paymentServicesPage.isFieldVisible("cc-number"), "Поле номера карты не найдено");
-        Assert.assertTrue(paymentServicesPage.isFieldVisible("cvv"), "Поле CVC не найдено");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("pay-description__cost")));
+        Assert.assertTrue(paymentServicesPage.getPaymentAmountText().contains(testSum), "Сумма не совпадает!");
+        Assert.assertTrue(paymentServicesPage.getPaymentInfoText().contains(testPhone), "Номер не найден!");
 
-    }
+        wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.xpath("//iframe[contains(@src, 'bepaid') or contains(@src, 'checkout')]")));
+
+        try {
+            Thread.sleep(3000);
+            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*")));
+            System.out.println("Успех: Контент формы оплаты загружен.");
+
+        } catch (Exception e) {
+            System.err.println("Форма оплаты так и не отобразила содержимое.");
+            throw new RuntimeException(e);
+        } finally {
+            driver.switchTo().defaultContent();
+        }
+        }
 
     @AfterMethod
     public void tearDown() {

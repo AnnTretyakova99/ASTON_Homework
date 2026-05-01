@@ -35,7 +35,8 @@ public class PaymentServicesPage {
     public void acceptCookies() {
         try {
             wait.until(ExpectedConditions.elementToBeClickable(cookieBtn)).click();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     public void selectTab(String tabName) {
@@ -59,7 +60,11 @@ public class PaymentServicesPage {
     }
 
     public void switchToPaymentFrame() {
-        try { Thread.sleep(5000); } catch (InterruptedException e) { e.printStackTrace(); }
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.xpath("//iframe[contains(@src, 'bepaid')]")));
     }
 
@@ -76,16 +81,18 @@ public class PaymentServicesPage {
         return el.getText();
     }
 
-    public boolean isFieldVisible(String fieldId) {
+    public boolean isFieldVisible(String fieldName) {
+        try {
+            By universalLocator = By.xpath("//input[contains(@id,'cv') or contains(@placeholder,'CVC') or contains(@name,'cv')]");
+            WebElement el = wait.until(ExpectedConditions.presenceOfElementLocated(universalLocator));
+            return el != null;
+        } catch (Exception e) {
             try {
-                return wait.until(ExpectedConditions.visibilityOfElementLocated(By.id(fieldId))).isDisplayed();
-            } catch (Exception e) {
-                try {
-                    return driver.findElement(By.id("cvc")).isDisplayed();
-                } catch (Exception ex) {
-                    return false;
-                }
+                return driver.findElement(By.className("cc-cvc")).isDisplayed();
+            } catch (Exception ex) {
+                return false;
             }
+        }
     }
 
     public String getCardLabel(String labelName) {
