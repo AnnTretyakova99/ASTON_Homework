@@ -3,6 +3,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.List;
+import io.qameta.allure.Step;
 
 public class PaymentServicesPage {
     private final WebDriver driver;
@@ -59,16 +60,18 @@ public class PaymentServicesPage {
         throw new RuntimeException("Не удалось найти видимое поле с плейсхолдером: " + partOfPlaceholder);
     }
 
+    @Step("Заполнение платежных реквизитов: номер/счет {account}, сумма {sum}, email {email}")
     public void fillPaymentDetails(String account, String sum, String email) {
         wait.until(ExpectedConditions.visibilityOfElementLocated(activeAccountInput)).sendKeys(account);
         driver.findElement(activeSumInput).sendKeys(sum);
         driver.findElement(activeEmailInput).sendKeys(email);
     }
-
+    @Step("Клик на 'Продолжить'")
     public void clickContinue() {
         wait.until(ExpectedConditions.elementToBeClickable(submitButton)).click();
     }
 
+    @Step("Ожидание, переключение в первый фрейм системы оплаты")
     public void switchToPaymentFrame() {
         try {
             Thread.sleep(5000);
@@ -77,20 +80,20 @@ public class PaymentServicesPage {
         }
         wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.xpath("//iframe[contains(@src, 'bepaid')]")));
     }
-
+    @Step("Получение отображаемой суммы к оплате")
     public String getPaymentAmountText() {
         WebElement el = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("pay-description__cost")));
         wait.until(d -> !el.getText().trim().isEmpty());
         return el.getText();
     }
-
+    @Step("Получение информации о платеже (номер телефона)")
     public String getPaymentInfoText() {
         By locator = By.cssSelector(".pay-description__text");
         WebElement el = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
         wait.until(d -> !el.getText().trim().isEmpty());
         return el.getText();
     }
-
+    @Step("Проверка видимости поля: {fieldName}")
     public boolean isFieldVisible(String fieldName) {
         try {
             By universalLocator = By.xpath("//input[contains(@id,'cv') or contains(@placeholder,'CVC') or contains(@name,'cv')]");
@@ -104,12 +107,12 @@ public class PaymentServicesPage {
             }
         }
     }
-
+@Step("Получение текста подписи для поля: '{labelName}")
     public String getCardLabel(String labelName) {
         By locator = By.xpath("//label[contains(text(),'" + labelName + "')]");
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).getText();
     }
-
+@Step("Проверка иконок платёжных систем")
     public int getPaymentIconsCount() {
         return driver.findElements(By.cssSelector(".payment-brands img, .cards-brand-icons img")).size();
     }

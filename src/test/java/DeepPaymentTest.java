@@ -5,6 +5,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.*;
+import io.qameta.allure.*;
 
 import javax.lang.model.util.Types;
 import java.time.Duration;
@@ -57,35 +58,46 @@ public class DeepPaymentTest {
     }
 
     @Test(description = "2. Проверка Услуг связи и содержимого окна оплаты")
+    @Severity(SeverityLevel.CRITICAL)
+    @Feature("Оплата услуг")
+    @Story("Полный цикл оплаты услуг связи")
+    @Description("Проверка перехода к форме оплаты, корректность отображения суммы и номера телефона, а также загрузки контента во фрейме.")
     public void testFullPaymentCycle() {
         String testPhone = "297777777";
         String testSum = "10.00";
-        paymentServicesPage.selectTab("Услуги связи");
-        paymentServicesPage.fillPaymentDetails(testPhone, testSum, "test@mail.ru");
-        paymentServicesPage.clickContinue();
-        paymentServicesPage.switchToPaymentFrame();
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        Allure.step("1. Выбор вкладки 'Услуги связи', заполнение данных", () -> {
+            paymentServicesPage.selectTab("Услуги связи");
+            paymentServicesPage.fillPaymentDetails(testPhone, testSum, "test@mail.ru");
+            paymentServicesPage.clickContinue();
+        });
 
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("pay-description__cost")));
-        Assert.assertTrue(paymentServicesPage.getPaymentAmountText().contains(testSum), "Сумма не совпадает!");
-        Assert.assertTrue(paymentServicesPage.getPaymentInfoText().contains(testPhone), "Номер не найден!");
+        Allure.step("2. Проверка данных в окне подтверждения", () -> {
+            paymentServicesPage.switchToPaymentFrame();
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("pay-description__cost")));
+            Assert.assertTrue(paymentServicesPage.getPaymentAmountText().contains(testSum), "Сумма не совпадает!");
+            Assert.assertTrue(paymentServicesPage.getPaymentInfoText().contains(testPhone), "Номер не найден!");
+        });
 
-        wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.xpath("//iframe[contains(@src, 'bepaid') or contains(@src, 'checkout')]")));
+        Allure.step("3. Проверка загрузки платежного шлюза", () -> {
 
-        try {
-            Thread.sleep(3000);
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*")));
-            System.out.println("Успех: Контент формы оплаты загружен.");
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+            wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.xpath("//iframe[contains(@src, 'bepaid') or contains(@src, 'checkout')]")));
 
-        } catch (Exception e) {
-            System.err.println("Форма оплаты так и не отобразила содержимое.");
-            throw new RuntimeException(e);
-        } finally {
-            driver.switchTo().defaultContent();
-        }
-        }
+            try {
+                Thread.sleep(3000);
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*")));
+                System.out.println("Успех: Контент формы оплаты загружен.");
 
+            } catch (Exception e) {
+                System.err.println("Форма оплаты так и не отобразила содержимое.");
+                throw new RuntimeException(e);
+            } finally {
+                driver.switchTo().defaultContent();
+            }
+        });
+    }
     @AfterMethod
     public void tearDown() {
         if (driver != null) driver.quit();
