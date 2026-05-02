@@ -1,16 +1,21 @@
+package mts;
+
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.openqa.selenium.*;
-import org.openqa.selenium.chrome.ChromeDriver;
+import io.qameta.allure.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.PageLoadStrategy;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.annotations.*;
-import io.qameta.allure.*;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
 
-import javax.lang.model.util.Types;
 import java.time.Duration;
-import java.util.List;
 
+@Listeners({io.qameta.allure.testng.AllureTestNg.class})
 public class DeepPaymentTest {
     private WebDriver driver;
     private PaymentServicesPage paymentServicesPage;
